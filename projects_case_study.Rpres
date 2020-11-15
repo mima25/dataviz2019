@@ -1,0 +1,98 @@
+projects_case_study
+========================================================
+author: Marija Majer
+date: 13-11-2020
+autosize: true
+
+First Slide
+========================================================
+
+For more details on authoring R presentations please visit <https://support.rstudio.com/hc/en-us/articles/200486468>.
+
+- Story telling
+- Networking
+- Q&A
+
+Slide With Code
+========================================================
+
+```{r}
+library('tidyverse')
+library('tmap')
+library('sf')
+library('spData')
+library('ggrepel')
+
+# Create tibble of my projects
+df <- tibble('Country' = c('Croatia','India','Puerto Rico', 'South Africa', 'Denmark','Denmark','Israel','Israel'),
+             'Project_type'= c('Biodiversity loss','Basic research','Basic research', 'Basic research','Urban sustainability',
+                               'Industrial data science','Climate change','Biodiversity loss'),
+             'Ncollaborators' = c(25,6,4,10,20,7,5,8),
+             'Global_footprint' = c(544,22,13,7,5000,1000,22,100),
+             'CO2_footprint_tones' = c(0,2.47,2.83,3.53,0,0,1,1),
+             'Year' = c(2017,2010,2011,2013,2014,2019,2016,2016),
+             'Long' = c(15.58,77.34,-66.08,31.56,10.20,12.34,34.48,34.77),
+             'Lat' = c(45.48,12.58,18.38,-23.99,56.17,55.43,29.74,30.81)
+             )
+
+# Get a map of the world
+world <- map_data("world")
+
+# Get map of all countries
+countries <- map_data("world", region = df %>% select(Country) %>% pull() )
+
+# Get maps of individual countries
+cro <- map_data("world", region = "Croatia")
+dk <- map_data("world", region = "Denmark")
+pr <- map_data("world", region = "Puerto Rico")
+ind <- map_data("world", region = "India")
+isr <- map_data("world", region = "Israel")
+sa <-  map_data("world", region = "South Africa")
+```
+
+Slide With Plot
+========================================================
+
+```{r, echo=FALSE}
+p <- ggplot() +
+  geom_map(data = world, map = world,
+           aes(x = long, y = lat, map_id=region),
+           fill = "white") +
+  theme_grey() +
+  ylim(-35,62)+
+  xlim(-70,90)
+
+# Plot countries where I had project collabs  
+p +
+  geom_polygon(data = countries, mapping = aes(x = long, y = lat, fill=region), inherit.aes = TRUE)+
+  scale_fill_viridis_d() +
+  labs(title ="Collaborative projects across countries in 2010-2020" )
+
+
+# Plot size of collaboration group
+p + 
+  geom_point(data = df, mapping = aes(x= Long, y = Lat, size=  Ncollaborators),color="red",alpha=0.5)+
+  scale_size_continuous(range=c(1,10)) +
+  geom_label_repel( data=df , aes(x=Long, y=Lat, label=Project_type), hjust = 0.5, size = 3)+
+  guides(size=guide_legend())+
+  labs(title ="Project type and size" )
+  
+# Plot impact by papers cited, or people reached by project scope
+p + 
+  geom_point(data = df, mapping = aes(x= Long, y = Lat, size = Global_footprint, color=Global_footprint),alpha=0.7)+
+  scale_size_continuous(range=c(5,10)) +
+  scale_color_viridis_c()+
+  geom_label_repel( data=df , aes(x=Long, y=Lat, label=Global_footprint), hjust = 0.5, size = 3)+
+  guides(color= guide_legend(), size=guide_legend())+
+  labs(title ="Footprint by number of people reached or number of citations" )
+
+
+# Plot project locations by type my C02 footprint 
+p+
+  geom_point(data = df, mapping = aes(x= Long, y = Lat, size = CO2_footprint_tones, color=CO2_footprint_tones),alpha=0.7)+
+  scale_size_continuous(range=c(5,10)) +
+  scale_color_viridis_c()+
+  geom_label_repel( data=df , aes(x=Long, y=Lat, label=CO2_footprint_tones), hjust = 0.5, size = 3)+
+  guides(color= guide_legend(), size=guide_legend())+
+  labs(title ="My C02 footprint of project execution" )
+```
