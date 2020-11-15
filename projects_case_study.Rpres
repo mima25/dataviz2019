@@ -41,13 +41,6 @@ world <- map_data("world")
 # Get map of all countries
 countries <- map_data("world", region = df %>% select(Country) %>% pull() )
 
-# Get maps of individual countries
-cro <- map_data("world", region = "Croatia")
-dk <- map_data("world", region = "Denmark")
-pr <- map_data("world", region = "Puerto Rico")
-ind <- map_data("world", region = "India")
-isr <- map_data("world", region = "Israel")
-sa <-  map_data("world", region = "South Africa")
 ```
 
 Slide With Plot
